@@ -66,9 +66,21 @@ class SimpleMysqlEngine extends Engine
      */
     protected function performSearch(Builder $builder)
     {
-        return \DB::table('search_index')
-            ->where('model', get_class($builder->model))
-            ->whereRaw('MATCH(`index`) AGAINST(? IN NATURAL LANGUAGE MODE)', [ $builder->query ])
+        $query = \DB::table('search_index')
+            ->where('model', get_class($builder->model));
+
+        switch (config('scout.mysql_simple.mode')) {
+            case 'LIKE':
+                $query->where('index', 'LIKE', '%' . $builder->query . '%');
+                break;
+
+            case 'NATURAL':
+            default:
+                $query->whereRaw('MATCH(`index`) AGAINST(? IN NATURAL LANGUAGE MODE)', [ $builder->query ]);
+                break;
+        }
+
+        return $query
             ->select('model_id')
             ->get()
             ->map(function($row) { return $row->model_id; })
