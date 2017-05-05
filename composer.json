@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "J6s\\SimpleMysqlScoutDriver": "src/"
+            "J6s\\SimpleMysqlScoutDriver\\": "src/"
         }
     }
 }
